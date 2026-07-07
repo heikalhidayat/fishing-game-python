@@ -2,7 +2,19 @@
 import random
 import time
 
-# Data Map
+# ==================================================
+# CONSTANS
+# ==================================================
+# persentase peluang menangkap ikan
+legenda_change = 10
+langka_change = 40
+
+# batas maksimal berat ikan
+max_berat_countdown = 10
+min_countdown = 1
+max_countdown = 5
+
+# Data Map dengan berbagai lokasi mancing
 data_map = {
     "rawa hijau": {
         "ikan_biasa": ["kembung", "teri"],
@@ -21,81 +33,206 @@ data_map = {
     }
 }
 
-# penyimpanan player
+# pesan hasil tangkapan
+pesan_tangkapan = {
+    "legenda": "Selamat!! Kamu mendapatkan Ikan {} dengan berat {} kg",
+    "langka": "Hebat! Kamu mendapatkan Ikan {} dengan berat {} kg",
+    "biasa": "Kamu mendapatkan Ikan {} dengan berat {} kg"
+}
+
+# ==================================================
+# PLAYER DATA
+# ==================================================
 koleksi_ikan = {
     "koleksi_ikan_biasa": [],
     "koleksi_ikan_langka": [],
     "koleksi_ikan_legenda": []
 }
 
-# Mulai Game
+# ==================================================
+# FUNCTIONS
+# ==================================================
 # Menu Utama
-while True:
-  print("===== Menu Utama =====")
-  print("1.Mulai Game\n2.Koleksi Ikan\n3.Keluar Game")
+
+# menampilkan menu utama
+def tampilkan_menu_utama():
+  print("\n===== Menu Utama =====")
+  print("1.Mulai Game")
+  print("2.Koleksi Ikan")
+  print("3.Keluar Game")
   print("======================")
+
+# player memilih menu utama
+def validasi_menu(pilihan):
   try:
-    menu = int(input("Pilih Menu : "))
+    menu_int = int(pilihan)
+    if menu_int in [1, 2, 3]:
+      return menu_int
+    else:
+      print("Pilihan harus 1, 2, atau 3")
+      return None
   except ValueError:
-    print("Pilihan Tidak Valid")
-    continue
+    print("Pilihan harus berupa angka")
+    return None
 
-  # Logika Game
-  if menu == 1:
-    print("===== Selamat Datang Di Game Memancing Ikan =====")
-    print("Rawa Hijau\nDanau Biru\nSungai Abu")
-    # Pemilihan map
-    map = input("Pilih Map!").lower()
-    if map not in ["rawa hijau", "danau biru", "sungai abu"]:
-      print("Pilihan Tidak Valid")
-      continue
-    if map in data_map:
-      print(f"===== Selamat Datang Di Map {map.title()} =====")
-      print("============================================")
+# meminta player memilih map
+def pilih_map():
+    print("\n===== Selamat Datang di Game Memancing Ikan =====")
+    print("Pilihan Map:")
+    print("1. Rawa Hijau")
+    print("2. Danau Biru")
+    print("3. Sungai Abu")
 
-      # Proses mancing
-      mancing = "x"
-      while mancing == "x":
-       input("Tekan x Untuk Lempar Pancingan! ").lower()
-       for i in range(5, 0, -1):
-        print(f"Lempar Pancingan Dalam {i} Detik")
-        time.sleep(1)
+    peta_pilihan = {
+        "1": "rawa hijau",
+        "2": "danau biru",
+        "3": "sungai abu"
+    }
 
-    # persentasi ikan legenda
-       persentasi = random.randint(1, 100)
-       berat = random.randint(1, 10)
-       if persentasi <= 10:
-        strike = random.choice(data_map[map]["ikan_legenda"])
-        print(f"Selamat!! Kamu mendapatkan Ikan {strike.title()} dengan berat {berat} kg")
-        koleksi_ikan["koleksi_ikan_legenda"].append({"nama": strike, "berat": berat})
-        time.sleep(0.5)
+    pilihan = input("\nPilih Map! 1/2/3:").strip()
 
-       # persentasi ikan langka
-       elif persentasi <= 40:
-        strike = random.choice(data_map[map]["ikan_langka"])
-        print(f"Hebat!! Kamu mendapatkan Ikan {strike.title()} dengan berat {berat} kg")
-        koleksi_ikan["koleksi_ikan_langka"].append({"nama": strike, "berat": berat})
-        time.sleep(0.5)
+    if pilihan in peta_pilihan:
+      return peta_pilihan[pilihan]
+    else:
+      print("Pilihan tidak valid. Silakan pilih 1, 2, atau 3")
+      return None
 
-       # persentasi ikan biasa
-       else:
-        strike = random.choice(data_map[map]["ikan_biasa"])
-        print(f"Kamu mendapatkan Ikan {strike.title()} dengan berat {berat} kg")
-        koleksi_ikan["koleksi_ikan_biasa"].append({"nama": strike, "berat": berat})
-        
-        time.sleep(0.5)
+def countdown_pancingan():
+  print("\nSiap untuk melempar pancingan")
+  for detik in range(max_countdown, min_countdown - 1, -1):
+    print(f"Lempar pancingan dalam {detik} detik", end="\r")
+    time.sleep(1)
+  print("Pancingan terlempar\n")
 
-       clear = input("Apakah kamu ingin mancing lagi? (x/y)")
-       if clear == "x":
+def tentukan_hasil_tangkapan(persentase, peta):
+  if persentase <= legenda_change:
+    jenis = "legenda"
+    nama = random.choice(data_map[peta]["ikan_legenda"])
+  elif persentase <= langka_change:
+    jenis = "langka"
+    nama = random.choice(data_map[peta]["ikan_langka"])
+  else:
+    jenis = "biasa"
+    nama = random.choice(data_map[peta]["ikan_biasa"])
+
+  return jenis, nama
+
+def tampilkan_hasil_tangkapan(jenis_ikan, nama_ikan, berat):
+  pesan = pesan_tangkapan[jenis_ikan]
+  print(pesan.format(nama_ikan.title(), berat))
+  time.sleep(0.5)
+
+def simpan_ikan(jenis_ikan, nama_ikan, berat):
+  kunci_koleksi = f"koleksi_ikan_{jenis_ikan}"
+  koleksi_ikan[kunci_koleksi].append({
+      "nama": nama_ikan,
+      "berat": berat
+  })
+
+def proses_mancing(peta):
+  print(f"\n===== Selamat Datang di Map {peta.title()} =====")
+  print("=" * 45)
+
+  while True:
+    input("\nTekan ENTER untuk melempar pancingan: ")
+
+    # countdown
+    countdown_pancingan()
+
+    # tentukan hasil tangkapan
+    persentase = random.randint(1, 100)
+    berat = random.randint(1, max_berat_countdown)
+    jenis_ikan, nama_ikan = tentukan_hasil_tangkapan(persentase, peta)
+
+    # tampilkan hasil
+    tampilkan_hasil_tangkapan(jenis_ikan, nama_ikan, berat)
+
+    # simpan ikan
+    simpan_ikan(jenis_ikan, nama_ikan, berat)
+
+    # tanya player apakah ingin lanjut
+    lanjut = input("\nApakah kamu ingin mancing lagi? (y/n): ").strip()
+    if lanjut != "y":
+      print("kembali ke Menu Utama...\n")
+      break
+
+def tampilkan_koleksi():
+  # menampilkan koleksi yang dimiliki player
+  print("\n===== Koleksi Ikan =====\n")
+
+  total_ikan = 0
+
+  # tampilan ikan biasa
+  ikan_biasa = koleksi_ikan["koleksi_ikan_biasa"]
+  print(f"Ikan Biasa ({len(ikan_biasa)} ekor):")
+  if ikan_biasa:
+    for idx, ikan in enumerate(ikan_biasa, 1):
+      print(f"  {idx}. {ikan['nama'].title()} - {ikan['berat']} kg")
+    total_ikan += len(ikan_biasa)
+  else:
+    print("   (Belum ada ikan biasa)")
+
+  # tampilan ikan langka
+  ikan_langka = koleksi_ikan["koleksi_ikan_langka"]
+  print(f"\nIkan Langka ({len(ikan_langka)} ekor):")
+  if ikan_langka:
+    for idx, ikan in enumerate(ikan_langka, 1):
+      print(f"  {idx}. {ikan['nama'].title()} - {ikan['berat']} kg")
+    total_ikan += len(ikan_langka)
+  else:
+    print("   (Belum ada ikan langka)")
+
+  # tampilan ikan legenda
+  ikan_legenda = koleksi_ikan["koleksi_ikan_legenda"]
+  print(f"\nIkan Legenda ({len(ikan_legenda)} ekor):")
+  if ikan_legenda:
+    for idx, ikan in enumerate(ikan_legenda, 1):
+      print(f"  {idx}. {ikan['nama'].title()} - {ikan['berat']} kg")
+    total_ikan += len(ikan_legenda)
+  else:
+    print("   (Belum ada ikan legenda)")
+
+  print(f"\n{'='*30}")
+  print(f"Total ikan: {total_ikan}")
+  print(f"{'='*30}\n")
+
+  input("Tekan ENTER untuk kembali ke Menu Utama: ")
+
+def main():
+  """ Fungsi Utama - Loop Game """
+  print("\n" + "="*45)
+  print("SELAMAT DATANG DI GAME MEMANCING IKAN")
+  print("="*45)
+
+  while True:
+    tampilkan_menu_utama()
+
+    # Input dan validasi menu
+    while True:
+      pilihan = input("\nPilih Menu: ")
+      menu = validasi_menu(pilihan)
+      if menu is not None:
         break
 
-  # Koleksi Ikan player
-  elif menu == 2:
-    print("===== Koleksi Ikan Anda =====")
-    print(koleksi_ikan)
-    keluar = input("Tekan ENTER untuk keluar")
+    # Logika menu
+    if menu == 1:
+      # mulai game
+      peta = pilih_map()
+      if peta:
+        proses_mancing(peta)
 
-  # Keluar game
-  else:
-    print("===== Terima Kasih Telah Bermain =====")
-    break
+    elif menu == 2:
+      # Koleksi ikan
+      tampilkan_koleksi()
+
+    elif menu == 3:
+      # Keluar game
+      print("\n===== Terima Kasih Telah Bermain =====")
+      print("Sampai Jumpa Lagi!!\n")
+      break
+
+# ==================================================
+# MAIN PROGRAM
+# ==================================================
+if __name__ == "__main__":
+  main()
