@@ -49,6 +49,8 @@ koleksi_ikan = {
     "koleksi_ikan_legenda": []
 }
 
+dompet_player = 0
+
 # ==================================================
 # FUNCTIONS
 # ==================================================
@@ -59,17 +61,18 @@ def tampilkan_menu_utama():
   print("\n===== Menu Utama =====")
   print("1.Mulai Game")
   print("2.Koleksi Ikan")
-  print("3.Keluar Game")
+  print("3.Toko Ikan")
+  print("4.Keluar Game")
   print("======================")
 
 # player memilih menu utama
 def validasi_menu(pilihan):
   try:
     menu_int = int(pilihan)
-    if menu_int in [1, 2, 3]:
+    if menu_int in [1, 2, 3, 4]:
       return menu_int
     else:
-      print("Pilihan harus 1, 2, atau 3")
+      print("Pilihan harus 1, 2, 3, atau 4")
       return None
   except ValueError:
     print("Pilihan harus berupa angka")
@@ -198,6 +201,69 @@ def tampilkan_koleksi():
 
   input("Tekan ENTER untuk kembali ke Menu Utama: ")
 
+def tampilan_penjualan_ikan():
+  print("\n" + "="*45)
+  print("1. Jual Ikan Biasa")
+  print("2. Jual Ikan Langka")
+  print("3. Jual Ikan Legenda")
+  print("4. Kembali")
+
+  try:
+    pilihan = int(input("Pilih opsi! "))
+    if pilihan in [1, 2, 3, 4]:
+      return pilihan
+    else:
+      print("Pilihan tidak valid!!")
+      print("pilih angka 1, 2, 3, atau 4")
+      return None
+  except ValueError:
+    print("Pilihan harus berupa angka")
+    return None\
+
+def menu_toko():
+  global dompet_player
+
+  while True:
+    print("\n===== TOKO =====")
+    print(f"Gold player: {dompet_player} gold\n")
+
+    # menampilkan ikan yang dimiliki
+    ikan_biasa = len(koleksi_ikan["koleksi_ikan_biasa"])
+    ikan_langka = len(koleksi_ikan["koleksi_ikan_langka"])
+    ikan_legenda = len(koleksi_ikan["koleksi_ikan_legenda"])
+    print(f"Jumlah ikan biasa {ikan_biasa} ekor")
+    print(f"Jumlah ikan langka {ikan_langka} ekor")
+    print(f"Jumlah ikan legenda {ikan_legenda} ekor")
+
+    # pilihan player untuk menjual ikan
+    pilihan = tampilan_penjualan_ikan()
+
+    if pilihan == 1:
+      if ikan_biasa > 0:
+        dompet_player += 100
+        koleksi_ikan["koleksi_ikan_biasa"].pop()
+      else:
+        print("Tidak ada ikan biasa yang tersedia")
+
+    elif pilihan == 2:
+      if ikan_langka > 0:
+        dompet_player += 200
+        koleksi_ikan["koleksi_ikan_langka"].pop()
+      else:
+        print("Tidak ada ikan langka yang tersedia")
+
+    elif pilihan == 3:
+      if ikan_legenda > 0:
+        dompet_player += 500
+        koleksi_ikan["koleksi_ikan_legenda"].pop()
+      else:
+        print("Tidak ada ikan legenda yang tersedia")
+
+    elif pilihan == 4:
+      print("Kembali ke Menu Utama...\n")
+      break
+  
+    
 def main():
   """ Fungsi Utama - Loop Game """
   print("\n" + "="*45)
@@ -226,6 +292,10 @@ def main():
       tampilkan_koleksi()
 
     elif menu == 3:
+      # menu toko
+      menu_toko()
+
+    elif menu == 4:
       # Keluar game
       print("\n===== Terima Kasih Telah Bermain =====")
       print("Sampai Jumpa Lagi!!\n")
