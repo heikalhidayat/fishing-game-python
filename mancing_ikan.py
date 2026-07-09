@@ -218,7 +218,7 @@ def tampilan_penjualan_ikan():
       return None
   except ValueError:
     print("Pilihan harus berupa angka")
-    return None\
+    return None
 
 def menu_toko():
   global dompet_player
